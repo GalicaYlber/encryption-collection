@@ -7,9 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import java.security.SecureRandom;
 import java.util.Base64;
 
 public class AESUtil {
