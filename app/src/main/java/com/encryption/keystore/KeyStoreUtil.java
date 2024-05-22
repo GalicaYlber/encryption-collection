@@ -58,8 +58,6 @@ public class KeyStoreUtil {
     }
 
     public KeyPair generateKeyPair(int keySize, String algo) throws NoSuchAlgorithmException {
-        System.out.println("Algorithm: " + algo);
-
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algo);
         keyPairGenerator.initialize(keySize);
         return keyPairGenerator.generateKeyPair();
@@ -82,7 +80,7 @@ public class KeyStoreUtil {
     public KeyPair loadKeyPair(String alias, String algo) throws IOException, GeneralSecurityException {
         // Load public key from PEM file
         PublicKey publicKey;
-        try (PemReader pemReader = new PemReader(new FileReader(alias + ".pub.pem"))) {
+        try (PemReader pemReader = new PemReader(new FileReader(alias + "_" + algo + ".pub.pem"))) {
             PemObject pemObject = pemReader.readPemObject();
             byte[] publicKeyBytes = pemObject.getContent();
             X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
@@ -92,7 +90,7 @@ public class KeyStoreUtil {
 
         // Load private key from PEM file
         PrivateKey privateKey;
-        try (PemReader pemReader = new PemReader(new FileReader(alias + ".pem"))) {
+        try (PemReader pemReader = new PemReader(new FileReader(alias + "_" + algo + ".pem"))) {
             PemObject pemObject = pemReader.readPemObject();
             byte[] privateKeyBytes = pemObject.getContent();
             PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
@@ -104,17 +102,23 @@ public class KeyStoreUtil {
     }
 
     public PublicKey loadPublicKey(String alias, String algo) throws IOException, GeneralSecurityException {
-        byte[] publicKeyBytes = Files.readAllBytes(Paths.get(alias + "_" + algo + ".pub.pem"));
-        KeyFactory keyFactory = KeyFactory.getInstance(algo);
-        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
-        return keyFactory.generatePublic(publicKeySpec);
+        try (PemReader pemReader = new PemReader(new FileReader(alias + "_" + algo + ".pub.pem"))) {
+            PemObject pemObject = pemReader.readPemObject();
+            byte[] publicKeyBytes = pemObject.getContent();
+            X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance(algo);
+            return keyFactory.generatePublic(publicKeySpec);
+        }
     }
 
     public PrivateKey loadPrivateKey(String alias, String algo) throws IOException, GeneralSecurityException {
-        byte[] privateKeyBytes = Files.readAllBytes(Paths.get(alias + "_" + algo + ".pem"));
-        KeyFactory keyFactory = KeyFactory.getInstance(algo);
-        PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-        return keyFactory.generatePrivate(privateKeySpec);
+        try (PemReader pemReader = new PemReader(new FileReader(alias + "_" + algo + ".pem"))) {
+            PemObject pemObject = pemReader.readPemObject();
+            byte[] privateKeyBytes = pemObject.getContent();
+            PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance(algo);
+            return keyFactory.generatePrivate(privateKeySpec);
+        }
     }
 
     public String encodePublicKey(PublicKey publicKey) {
@@ -131,6 +135,7 @@ public class KeyStoreUtil {
         return scanner.nextLine().toCharArray();
     }
 }
+
 
 	// public void storeKeyPair(KeyPair keyPair, String alias) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
     //     try {

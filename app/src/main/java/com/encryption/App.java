@@ -227,22 +227,22 @@ public class App {
 						System.out.print("Enter alias to private key file: ");
 						String alias = scanner.nextLine();
 						PrivateKey privateKey = keyStoreUtil.loadPrivateKey(alias, algorithm);
-						System.out.print("Enter path to data file to sign: ");
+						System.out.print("Enter name of file to sign data: ");
 						String dataFilePath = scanner.nextLine();
-						byte[] data = Files.readAllBytes(Paths.get(dataFilePath));
+						byte[] data = Files.readAllBytes(Paths.get(dataFilePath + ".txt"));
 						byte[] signature = DSAUtil.sign(data, privateKey);
 						System.out.println("Signature: " + Base64.getEncoder().encodeToString(signature));
 						break;
 					case 4:
 						System.out.print("Enter path to public key file: ");
-						String publicKeyPath = scanner.nextLine();
-						PublicKey publicKey = keyStoreUtil.loadPublicKey(publicKeyPath, algorithm);
-						System.out.print("Enter path to data file: ");
+						String aliasPublic = scanner.nextLine();
+						PublicKey publicKey = keyStoreUtil.loadPublicKey(aliasPublic, algorithm);
+						System.out.print("Enter name of data file: ");
 						dataFilePath = scanner.nextLine();
-						data = Files.readAllBytes(Paths.get(dataFilePath));
+						data = Files.readAllBytes(Paths.get(dataFilePath + ".txt"));
 						System.out.print("Enter path to signature file: ");
 						String signatureFilePath = scanner.nextLine();
-						byte[] signatureBytes = Files.readAllBytes(Paths.get(signatureFilePath));
+						byte[] signatureBytes = Files.readAllBytes(Paths.get(signatureFilePath + ".txt"));
 						boolean isValid = DSAUtil.verify(data, signatureBytes, publicKey);
 						if (isValid) {
 							System.out.println("Signature is valid.");

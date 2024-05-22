@@ -16,7 +16,7 @@ public class DSAUtil {
         Signature signature = Signature.getInstance(ALGORITHM);
         signature.initSign(privateKey);
         signature.update(data);
-		try (FileOutputStream fos = new FileOutputStream("signature")) {
+		try (FileOutputStream fos = new FileOutputStream("signature.txt")) {
 			fos.write(signature.sign());
 		}
         return signature.sign();
