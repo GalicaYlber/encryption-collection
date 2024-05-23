@@ -17,6 +17,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import javax.crypto.SecretKey;
+import org.springframework.web.bind.annotation.GetMapping;
+import java.util.ArrayList;
 
 @RestController
 @CrossOrigin 
@@ -108,4 +110,15 @@ public class AESController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+	@PostMapping("/getAllAliases")
+	public ResponseEntity<ArrayList<String>> getAllAliases(@RequestBody String password) {
+		try {
+			this.keyStoreUtil = new KeyStoreUtil(toAscii(password));
+			ArrayList<String> aliases = keyStoreUtil.getAllAliases();
+			return new ResponseEntity<>(aliases, HttpStatus.OK);
+		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

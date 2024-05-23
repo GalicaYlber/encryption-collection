@@ -21,7 +21,7 @@ public class AESUtil {
     }
 
     public static void saveKey(SecretKey key, String fileName) throws IOException {
-        byte[] keyBytes = key.getEncoded();
+		byte[] keyBytes = key.getEncoded();
         try (FileOutputStream fos = new FileOutputStream(fileName)) {
             fos.write(keyBytes);
         }

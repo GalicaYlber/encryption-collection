@@ -6,6 +6,7 @@ import java.security.KeyPair;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Base64;
 
 import org.springframework.http.HttpStatus;
@@ -84,6 +85,17 @@ public class DSAController {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+	@PostMapping("/getAllAliases")
+	public ResponseEntity<ArrayList<String>> getAllAliases(@RequestBody AssymetricRequest request) {
+		try {
+			this.keyStoreUtil = new KeyStoreUtil(toAscii(request.getPassword()));
+			ArrayList<String> aliases = DSAUtil.getAllAliases();
+			return new ResponseEntity<>(aliases, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
     private char[] toAscii(String str) {
         StringBuilder sb = new StringBuilder();

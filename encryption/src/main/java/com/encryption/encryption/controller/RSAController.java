@@ -6,6 +6,7 @@ import java.security.KeyPair;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Base64;
 
 import org.springframework.http.HttpStatus;
@@ -90,4 +91,17 @@ public class RSAController {
             return new ResponseEntity<>("Decryption error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+	@PostMapping("/getAllAliases")
+	public ResponseEntity<ArrayList<String>> getAllAliases(@RequestBody AssymetricRequest request) {
+		try {
+			this.keyStoreUtil = new KeyStoreUtil(toAscii(request.getPassword()));
+			ArrayList<String> aliases = RSAUtil.getAllAliases();
+			return new ResponseEntity<>(aliases, HttpStatus.OK);
+		} catch (Exception e) {
+			ArrayList<String> errorList = new ArrayList<>();
+			errorList.add("Error getting aliases: " + e.getMessage());
+			return new ResponseEntity<>(errorList, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }
