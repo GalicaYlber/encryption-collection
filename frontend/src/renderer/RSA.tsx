@@ -6,7 +6,7 @@ import {
   decryptDataAsymmetric,
   generateKeyPairAPI,
   fetchAsymmetricKeys,
-  loadeKeyPairAPI,
+  loadKeyPairAPI,
 } from '../main/API';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -23,12 +23,13 @@ export default function RSA() {
   const [textArea1, settextArea1] = useState<string>('');
   const [textArea2, settextArea2] = useState<string>('');
   const [selectedKey, setSelectedKey] = useState<KeyPair>();
-  const [keys, setKeys] = useState<KeyPair[]>([]);
-  const [keyAlias, setKeyAlias] = useState<string[]>([]);
+  const [keys, setKeys] = useState<string[]>([]);
+
   const [hasKeys, setHasKeys] = useState<boolean>(false);
   const [isNew, setIsNew] = useState<boolean>(false);
-  const [bitLength, setBitLength] = useState<number>(1024);
+  const [bitLength, setBitLength] = useState<number>(512);
   const [keyName, setKeyName] = useState<string>('');
+  const [randomness, setRandomness] = useState<string>('DEFAULT');
 
   const navigate = useNavigate();
 
@@ -48,17 +49,26 @@ export default function RSA() {
     }
   };
 
-  useEffect(() => {
-    const fetchKeys = async () => {
-      try {
-        const response = await fetchAsymmetricKeys();
-        setKeys(response);
-        setSelectedKey(response[0]);
-      } catch (error) {
-        toast.error('An error occurred while fetching the keys.');
+  async function fetchKeys() {
+    try {
+      const rawData = await fetchAsymmetricKeys();
+      const data = Array.from(new Set(rawData));
+      setKeys(data);
+      setKeyName(data[0]);
+      if (data.length > 0) {
+        const keyString = await loadKeyPairAPI(data[0], bitLength, 'RSA');
+        const lines = keyString.split('\n');
+        const publicKey = lines[0].split(': ')[1];
+        const privateKey = lines[1].split(': ')[1];
+        const newKeyPair = { publicKey, privateKey, alias: data[0] };
+        setSelectedKey(newKeyPair);
       }
-    };
+    } catch (error) {
+      toast.error('Failed to fetch keys');
+    }
+  }
 
+  useEffect(() => {
     fetchKeys();
   }, []);
 
@@ -78,14 +88,20 @@ export default function RSA() {
 
   async function generateKeyPair() {
     try {
-      await generateKeyPairAPI(selectedKey?.alias ?? '', bitLength, "RSA");
-      const keyString = await loadeKeyPairAPI(selectedKey?.alias ?? '', bitLength, "RSA");
+      await generateKeyPairAPI(keyName ?? '', bitLength, 'RSA', randomness);
+      const keyString = await loadKeyPairAPI(
+        keyName ?? '',
+        bitLength,
+        'RSA',
+      );
       const lines = keyString.split('\n');
       const publicKey = lines[0].split(': ')[1];
       const privateKey = lines[1].split(': ')[1];
-      const newKeyPair = { publicKey, privateKey, alias : keyName};
+      const newKeyPair = { publicKey, privateKey, alias: keyName};
       // setKeyAlias((prevKeys) => [...prevKeys, selectedKey?.alias ?? '']);
-      setKeys((prevKeys) => [...prevKeys, newKeyPair]);
+      if (!keys.includes(keyName)) {
+        setKeys((prevKeys) => [...prevKeys, keyName]);
+      }
       setSelectedKey(newKeyPair);
       toast.success('Key pair generated successfully!');
     } catch (error) {
@@ -115,7 +131,7 @@ export default function RSA() {
       try {
         const decryptedData = await decryptDataAsymmetric(
           textArea1,
-          selectedKey.alias
+          selectedKey.alias,
         );
         settextArea2(decryptedData);
         toast.success('Data decrypted successfully');
@@ -125,6 +141,15 @@ export default function RSA() {
     } else {
       toast.error('No data to decrypt');
     }
+  }
+
+  async function handleKeySelection(alias: string) {
+    const keyString = await loadKeyPairAPI(alias, bitLength, 'RSA');
+    const lines = keyString.split('\n');
+    const publicKey = lines[0].split(': ')[1];
+    const privateKey = lines[1].split(': ')[1];
+    const newKeyPair = { publicKey, privateKey, alias: alias };
+    setSelectedKey(newKeyPair);
   }
 
   return (
@@ -142,14 +167,111 @@ export default function RSA() {
             <div className="key-selection">
               <p>Selected Key:</p>
               <div className="radio-generate">
-              <select onChange={(e) => setSelectedKey(keys.find((key) => key.alias === e.target.value))}>
-                {keys.map((key) => (
-                  <option key={key.alias} value={key.alias}>
-                    {key.alias}
-                  </option>
-                ))}
-            </select>
+                <select
+                  value={selectedKey?.alias}
+                  onChange={(e) => handleKeySelection(e.target.value)}
+                >
+                  {keys.map((key) => (
+                    <option key={1} value={key}>
+                      {key}
+                    </option>
+                  ))}
+                </select>
               </div>
+              {!isNew && (
+                <button onClick={() => setIsNew(true)}>Generate New Key</button>
+              )}
+              {isNew && (
+                <>
+                  <div className="key-selection">
+                    <div className="radio-generate">
+                      <input
+                        type="text"
+                        placeholder="Key Name"
+                        onChange={(e) => setKeyName(e.target.value)}
+                      />
+
+                      <div className="radio">
+                        <label>
+                          <input
+                            type="radio"
+                            name="bitlength"
+                            value="512"
+                            checked={bitLength == 512}
+                            onClick={() => setBitLength(512)}
+                          />
+                          <>512 bit</>
+                          <br />
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="bitlength"
+                            value="1024"
+                            checked={bitLength == 1024}
+                            onClick={() => setBitLength(1024)}
+                          />
+                          <>1024 bit</>
+                          <br />
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="bitlength"
+                            value="2048"
+                            checked={bitLength == 2048}
+                            onClick={() => setBitLength(2048)}
+                          />
+                          <>2048 bit</>
+                          <br />
+                        </label>
+                      </div>
+                  <div>
+                    <label>
+                      <input
+                        type="radio"
+                        name="randomness"
+                        value="DEFAULT"
+                        checked={randomness == 'DEFAULT'}
+                        onClick={() => setRandomness('DEFAULT')}
+                      />
+                      <>DEFAULT</>
+                      <br />
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="randomness"
+                        value="SHA1PRNG"
+                        checked={randomness == 'SHA1PRNG'}
+                        onClick={() => setRandomness('SHA1PRNG')}
+                      />
+                      <>SHA1PRNG</>
+                      <br />
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="randomness"
+                        value="DRBG"
+                        checked={randomness == 'DRBG'}
+                        onClick={() => setRandomness('DRBG')}
+                      />
+                      <>DRBG</>
+                      <br />
+                    </label>
+                  </div>
+                    </div>
+                  </div>
+                  <button onClick={() => generateKeyPair()}>
+                    Generate Key
+                  </button>
+                </>
+              )}
+            </div>
+          ) : (
+            <>
+              <p>No keys available</p>
               {!isNew && (
                 <button onClick={() => setIsNew(true)}>Generate New Key</button>
               )}
@@ -163,6 +285,17 @@ export default function RSA() {
                     />
 
                     <div className="radio">
+                      <label>
+                        <input
+                          type="radio"
+                          name="bitlength"
+                          value="512"
+                          checked={bitLength == 512}
+                          onClick={() => setBitLength(512)}
+                        />
+                        <>512 bit</>
+                        <br />
+                      </label>
                       <label>
                         <input
                           type="radio"
@@ -185,33 +318,58 @@ export default function RSA() {
                         <>2048 bit</>
                         <br />
                       </label>
-                      <label>
-                        <input
-                          type="radio"
-                          name="bitlength"
-                          value="4096"
-                          checked={bitLength == 4096}
-                          onClick={() => setBitLength(4096)}
-                        />
-                        <>4096 bit</>
-                        <br />
-                      </label>
                     </div>
+                  <div>
+                    <label>
+                      <input
+                        type="radio"
+                        name="randomness"
+                        value="DEFAULT"
+                        checked={randomness == 'DEFAULT'}
+                        onClick={() => setRandomness('DEFAULT')}
+                      />
+                      <>DEFAULT</>
+                      <br />
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="randomness"
+                        value="SHA1PRNG"
+                        checked={randomness == 'SHA1PRNG'}
+                        onClick={() => setRandomness('SHA1PRNG')}
+                      />
+                      <>SHA1PRNG</>
+                      <br />
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="randomness"
+                        value="DRBG"
+                        checked={randomness == 'DRBG'}
+                        onClick={() => setRandomness('DRBG')}
+                      />
+                      <>DRBG</>
+                      <br />
+                    </label>
                   </div>
+                  </div>
+
                   <button onClick={() => generateKeyPair()}>
                     Generate Key
                   </button>
                 </div>
               )}
-            </div>
-          ) : (
-            <p>No keys available</p>
+            </>
           )}
 
           <div className="key-selection">
-            <p>Public Key: {selectedKey?.publicKey.substring(0, 10) + "..."}</p>
+            <p>Public Key: {selectedKey?.publicKey.substring(0, 10) + '...'}</p>
 
-            <p>Private Key: {selectedKey?.privateKey.substring(0, 10) + "..."}</p>
+            <p>
+              Private Key: {selectedKey?.privateKey.substring(0, 10) + '...'}
+            </p>
           </div>
           <label
             htmlFor="fileUpload"

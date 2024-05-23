@@ -74,15 +74,17 @@ public class DSAController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<Boolean> verify(@RequestBody SignVerifyRequest request) {
+    public ResponseEntity<?> verify(@RequestBody SignVerifyRequest request) {
+        boolean isValid = false;
+
         try {
             KeyPair keyPair = keyStoreUtil.loadKeyPair(request.getAlias(), request.getAlgo());
             byte[] data = request.getText().getBytes();
             byte[] signatureBytes = Base64.getDecoder().decode(request.getSignature());
-            boolean isValid = DSAUtil.verify(data, signatureBytes, keyPair.getPublic());
+            isValid = DSAUtil.verify(data, signatureBytes, keyPair.getPublic());
             return new ResponseEntity<>(isValid, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(isValid, HttpStatus.OK);
         }
     }
 

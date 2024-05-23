@@ -48,10 +48,10 @@ function transformToJsonOrTextPromise(response: Response): Promise<any> {
   
   const BACKEND_URL = 'http://localhost:8080'; 
   
-  export async function generateSymmetricKey(alias: string, size: number, password: string): Promise<any> {
+  export async function generateSymmetricKey(alias: string, size: number, password: string, randomness : string): Promise<any> {
     return sendRequest(BACKEND_URL + `/aes/generateAndStoreKey`, {
         method: "POST",
-        body: { keySize: size, alias: alias, password: password }
+        body: { keySize: size, alias: alias, password: password, randomness: randomness },
     });
 }
 
@@ -62,31 +62,33 @@ function transformToJsonOrTextPromise(response: Response): Promise<any> {
     });
   }
 
+
 export async function fetchSymmetricKeys(): Promise<any> {
-    // return sendRequest(BACKEND_URL + '/keys');
-    
-        return ['key1', 'key2', 'key3'];
+  return sendRequest(BACKEND_URL + '/aes/getAllAliases', {
+    method: 'POST',
+    body: {
+        password: localStorage.getItem('password')
+    }
+});
     
 }
 
-export async function fetchAsymmetricKeys(): Promise<Array<{ publicKey: string, privateKey: string, alias : string }>> {
-    return [
-        {
-            publicKey: "publicKey1",
-            privateKey: "privateKey1",
-            alias: "key1"
-        },
-        {
-            publicKey: "publicKey2",
-            privateKey: "privateKey2",
-            alias: "key2"
-        },
-        {
-            publicKey: "publicKey3",
-            privateKey: "privateKey3",
-            alias: "key3"
-        },
-    ];
+export async function fetchAsymmetricKeys(): Promise<Array< any >> {
+    return sendRequest(BACKEND_URL + '/rsa/getAllAliases', 
+    { method: 'POST',
+    body: {
+        password: localStorage.getItem('password')
+    }
+    });
+}
+
+export async function fetchDSAKeys(): Promise<Array<string>> {
+    return sendRequest(BACKEND_URL + '/dsa/getAllAliases', 
+    { method: 'POST',
+    body: {
+        password: localStorage.getItem('password')
+    }
+    });
 }
 
 export async function encryptDataSymmetric(text: string, key: string, password: string): Promise<string> {
@@ -131,18 +133,19 @@ export async function decryptDataAsymmetric(text: string, key: string): Promise<
     })
 }
 
-export async function generateKeyPairAPI(alias: string, bitLength: number, algo: string): Promise<any> {
+export async function generateKeyPairAPI(alias: string, bitLength: number, algo: string, randomness: string): Promise<any> {
   return sendRequest(BACKEND_URL + '/rsa/storeKeyPair', { method: 'POST', 
       body: { 
         alias : alias,
         password : localStorage.getItem('password'),
         algo: algo,
-        keySize : bitLength
+        keySize : bitLength,
+        randomness : randomness
         } 
     });
   }
 
-  export async function loadeKeyPairAPI(alias: string, bitLength: number, algo: string): Promise<any> {
+  export async function loadKeyPairAPI(alias: string, bitLength: number, algo: string): Promise<any> {
     return sendRequest(BACKEND_URL + '/rsa/loadKeyPair', { method: 'POST', 
         body: { 
           alias : alias,
@@ -153,15 +156,15 @@ export async function generateKeyPairAPI(alias: string, bitLength: number, algo:
       });
     }
 
-    export async function generateDSAKeyPairAPI(alias: string ,bitLength : number): Promise<string> {
+    export async function generateDSAKeyPairAPI(alias: string ,bitLength : number, randomness: string): Promise<string> {
       return sendRequest(BACKEND_URL + '/dsa/storeKeyPair', {
         method: 'POST', 
         body : { 
           alias: alias,
           password : localStorage.getItem('password'),
           algo: "DSA",
-          keySize : bitLength
-          
+          keySize : bitLength,
+          randomness : randomness
         }
         });
     }

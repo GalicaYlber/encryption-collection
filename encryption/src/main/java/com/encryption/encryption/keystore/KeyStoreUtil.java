@@ -23,6 +23,11 @@ public class KeyStoreUtil {
     private static final String KEYSTORE_TYPE = "JCEKS";
     private static final String KEYSTORE_FILE = "keystore.jks";
 
+	// possible source of randomness
+	public static final String RANDOM_1 = "DEFAULT";
+	public static final String RANDOM_2 = "SHA1PRNG";
+	public static final String RANDOM_3 = "DRBG";
+
     private KeyStore keyStore;
     private char[] keystorePassword;
 

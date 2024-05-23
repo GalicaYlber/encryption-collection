@@ -52,12 +52,12 @@ public class AESController {
 
     @PostMapping("/generateAndStoreKey")
     public String generateAndStoreKey(@RequestBody SecretKeyRequest keyRequest) {
-        if (this.keyStoreUtil == null) {
-            return "Failed to generate and store key: KeyStoreUtil has not been initialized. Please set the keystore password first.";
-        }
+        // if (this.keyStoreUtil == null) {
+        //     return "Failed to generate and store key: KeyStoreUtil has not been initialized. Please set the keystore password first.";
+        // }
         try {
-            SecretKey secretKey = AESUtil.generateKey(keyRequest.getKeySize(), keyRequest.getRandomness());
             this.keyStoreUtil = new KeyStoreUtil(toAscii(keyRequest.getPassword()));
+            SecretKey secretKey = AESUtil.generateKey(keyRequest.getKeySize(), keyRequest.getRandomness());
             this.keyStoreUtil.storeSecretKey(secretKey, keyRequest.getAlias());
             return "Key generated and stored in keystore. Key (Hex): " + bytesToHex(secretKey.getEncoded());
         } catch (Exception e) {

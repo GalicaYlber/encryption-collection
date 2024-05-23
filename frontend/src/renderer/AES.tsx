@@ -22,6 +22,7 @@ export default function AES() {
   const [textArea2, settextArea2] = useState<string>('');
   const [selectedKey, setSelectedKey] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [randomness, setRandomness] = useState<string>('DEFAULT');
 
   const handleFileUpload = () => {
     const file = fileInputRef.current?.files?.[0];
@@ -51,18 +52,14 @@ export default function AES() {
 
   useEffect(() => {
     setPassword(localStorage.getItem('password') as string);
-    const fetchKeys = async () => {
-      setSymmetricKeys(['key1', 'key2', 'key3']);
-      try {
-        const response = await fetchSymmetricKeys();
+ 
+      fetchSymmetricKeys().then((response) => {
         setSymmetricKeys(response);
         setSelectedKey(response[0]);
-      } catch (error) {
+      }).catch((error) => {
         toast.error('An error occurred while fetching the keys.');
-      }
-    };
+      })
 
-    fetchKeys();
   }, []);
 
   useEffect(() => {
@@ -73,7 +70,7 @@ export default function AES() {
 
   async function generateKey() {
     try {
-      const key = await generateSymmetricKey(keyName, bitLength, password);
+      const key = await generateSymmetricKey(keyName, bitLength, password, randomness);
       setSymmetricKeys([...symmetricKeys, keyName]);
       toast.success('Key generated successfully');
       toast.info('You may find the key at the selected key dropdown');
@@ -173,11 +170,11 @@ export default function AES() {
                           <input
                             type="radio"
                             name="bitlength"
-                            value="128"
-                            checked={bitLength == 128}
-                            onClick={() => setBitLength(128)}
+                            value="192"
+                            checked={bitLength == 192}
+                            onClick={() => setBitLength(192)}
                           />
-                          <>128 bit</>
+                          <>192 bit</>
                           <br />
                         </label>
                         <label>
@@ -189,6 +186,42 @@ export default function AES() {
                             onClick={() => setBitLength(256)}
                           />
                           <>256 bit</>
+                          <br />
+                        </label>
+                      </div>
+                      {/* another three radio buttons  */}
+                      <div>
+                        <label>
+                          <input
+                            type="radio"
+                            name="randomness"
+                            value="DEFAULT"
+                            checked={randomness == "DEFAULT"}
+                            onClick={() => setRandomness("DEFAULT")}
+                          />
+                          <>DEFAULT</>
+                          <br />
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="randomness"
+                            value="SHA1PRNG"
+                            checked={randomness == "SHA1PRNG"}
+                            onClick={() => setRandomness("SHA1PRNG")}
+                          />
+                          <>SHA1PRNG</>
+                          <br />
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="randomness"
+                            value="DRBG"
+                            checked={randomness == "DRBG"}
+                            onClick={() => setRandomness("DRBG")}
+                          />
+                          <>DRBG</>
                           <br />
                         </label>
                       </div>
@@ -224,11 +257,11 @@ export default function AES() {
                         <input
                           type="radio"
                           name="bitlength"
-                          value="128"
-                          checked={bitLength == 128}
-                          onClick={() => setBitLength(128)}
+                          value="192"
+                          checked={bitLength == 192}
+                          onClick={() => setBitLength(192)}
                         />
-                        <>128 bit</>
+                        <>192 bit</>
                         <br />
                       </label>
                       <label>
@@ -243,6 +276,41 @@ export default function AES() {
                         <br />
                       </label>
                     </div>
+                    <div>
+                        <label>
+                          <input
+                            type="radio"
+                            name="randomness"
+                            value="DEFAULT"
+                            checked={randomness == "DEFAULT"}
+                            onClick={() => setRandomness("DEFAULT")}
+                          />
+                          <>DEFAULT</>
+                          <br />
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="randomness"
+                            value="SHA1PRNG"
+                            checked={randomness == "SHA1PRNG"}
+                            onClick={() => setRandomness("SHA1PRNG")}
+                          />
+                          <>SHA1PRNG</>
+                          <br />
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="randomness"
+                            value="DRBG"
+                            checked={randomness == "DRBG"}
+                            onClick={() => setRandomness("DRBG")}
+                          />
+                          <>DRBG</>
+                          <br />
+                        </label>
+                        </div>
                   </div>
                   <button onClick={() => generateKey()}>Generate Key</button>
                 </div>
