@@ -17,7 +17,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import javax.crypto.SecretKey;
-import org.springframework.web.bind.annotation.GetMapping;
 import java.util.ArrayList;
 
 @RestController
@@ -27,7 +26,7 @@ import java.util.ArrayList;
 public class AESController {
 
     private KeyStoreUtil keyStoreUtil;
-    private AESUtil AESUtil;
+    // private AESUtil AESUtil;
 
     @PostMapping("/setKeystorePassword")
     public String setKeystorePassword(@RequestBody String password) {
@@ -56,7 +55,7 @@ public class AESController {
             return "Failed to generate and store key: KeyStoreUtil has not been initialized. Please set the keystore password first.";
         }
         try {
-            SecretKey secretKey = AESUtil.generateKey(keyRequest.getKeySize());
+            SecretKey secretKey = AESUtil.generateKey(keyRequest.getKeySize(), keyRequest.getRandomness());
             this.keyStoreUtil = new KeyStoreUtil(toAscii(keyRequest.getPassword()));
             this.keyStoreUtil.storeSecretKey(secretKey, keyRequest.getAlias());
             return "Key generated and stored in keystore. Key (Hex): " + bytesToHex(secretKey.getEncoded());

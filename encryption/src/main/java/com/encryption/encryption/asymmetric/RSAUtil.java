@@ -15,9 +15,9 @@ import javax.crypto.Cipher;
 public class RSAUtil {
     private static final String ALGORITHM = "RSA";
 
-    public static KeyPair generateKeyPair(int keySize) throws NoSuchAlgorithmException {
+    public static KeyPair generateKeyPair(int keySize, String sourceOfRandomness) throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM);
-        keyPairGenerator.initialize(keySize);
+        keyPairGenerator.initialize(keySize, SecureRandom.getInstance(sourceOfRandomness));
         return keyPairGenerator.generateKeyPair();
     }
 

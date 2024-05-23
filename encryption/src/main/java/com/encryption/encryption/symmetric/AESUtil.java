@@ -13,9 +13,9 @@ import java.util.Base64;
 public class AESUtil {
     private static final String ALGORITHM = "AES";
 
-    public static SecretKey generateKey(int keySize) throws Exception {
+    public static SecretKey generateKey(int keySize, String sourceOfRandomness) throws Exception {
         KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
-        SecureRandom random = new SecureRandom();
+        SecureRandom random = SecureRandom.getInstance(sourceOfRandomness);
         keyGen.init(keySize, random);
         return keyGen.generateKey();
     }

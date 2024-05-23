@@ -29,13 +29,12 @@ public class DSAController {
 
     private KeyStoreUtil keyStoreUtil;
 
-
     @PostMapping("/storeKeyPair")
     public ResponseEntity<String> storeKeyPair(@RequestBody AssymetricRequest request)
             throws KeyStoreException, CertificateException {
         try {
             this.keyStoreUtil = new KeyStoreUtil(toAscii(request.getPassword()));
-            KeyPair keypair = this.keyStoreUtil.generateKeyPair(request.getKeySize(), request.getAlgo());
+            KeyPair keypair = this.keyStoreUtil.generateKeyPair(request.getKeySize(), request.getAlgo(), request.getRandomness());
             this.keyStoreUtil.storeKeyPair(keypair, request.getAlias(), request.getAlgo());
             return new ResponseEntity<>("Key pair stored!", HttpStatus.OK);
         } catch (NoSuchAlgorithmException | IOException e) {

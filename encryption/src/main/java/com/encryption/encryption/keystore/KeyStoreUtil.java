@@ -69,11 +69,11 @@ public class KeyStoreUtil {
 		return aliases;
 	}
 
-    public KeyPair generateKeyPair(int keySize, String algo) throws NoSuchAlgorithmException {
+    public KeyPair generateKeyPair(int keySize, String algo, String sourceOfRandomness) throws NoSuchAlgorithmException {
         System.out.println("Algorithm: " + algo);
 
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algo);
-        keyPairGenerator.initialize(keySize);
+        keyPairGenerator.initialize(keySize, SecureRandom.getInstance(sourceOfRandomness));
         return keyPairGenerator.generateKeyPair();
     }
 
