@@ -3,6 +3,7 @@ package com.encryption.encryption.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.HttpStatus;
@@ -106,6 +107,17 @@ public class AESController {
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException | IOException
                 | CertificateException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/getAllKeys")
+    public ResponseEntity<String> getAllKeys() {
+        try {
+            this.keyStoreUtil = new KeyStoreUtil(toAscii("password"));
+            // String keys = keyStoreUtil.getAllKeys();
+            // return new ResponseEntity<>(keys, HttpStatus.OK);
+            return new ResponseEntity<>("", HttpStatus.OK);
+        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
+            return new ResponseEntity<>("Error reading key pair: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -69,19 +69,22 @@ export async function fetchSymmetricKeys(): Promise<any> {
     
 }
 
-export async function fetchAsymmetricKeys(): Promise<Array<{ publicKey: string, privateKey: string }>> {
+export async function fetchAsymmetricKeys(): Promise<Array<{ publicKey: string, privateKey: string, alias : string }>> {
     return [
         {
             publicKey: "publicKey1",
             privateKey: "privateKey1",
+            alias: "key1"
         },
         {
             publicKey: "publicKey2",
             privateKey: "privateKey2",
+            alias: "key2"
         },
         {
             publicKey: "publicKey3",
             privateKey: "privateKey3",
+            alias: "key3"
         },
     ];
 }
@@ -107,13 +110,25 @@ export async function decryptDataSymmetric(text: string, key: string, password: 
 }
 
 export async function encryptDataAsymmetric(text: string, key: string): Promise<string> {
-    // For now, we'll just return a placeholder string
-    return 'Encrypted data';
+  return sendRequest(BACKEND_URL + '/rsa/encrypt', { method: 'POST', 
+      body: { 
+        alias : key,
+        text : text,
+        algo : "RSA",
+        password : localStorage.getItem('password')
+        } 
+    });
 }
 
 export async function decryptDataAsymmetric(text: string, key: string): Promise<string> {
-    // For now, we'll just return a placeholder string
-    return 'Decrypted data';
+  return sendRequest(BACKEND_URL + '/rsa/decrypt', { method: 'POST', 
+      body: { 
+        alias : key,
+        text : text,
+        algo : "RSA",
+        password : localStorage.getItem('password')
+        } 
+    })
 }
 
 export async function generateKeyPairAPI(alias: string, bitLength: number, algo: string): Promise<any> {
@@ -137,16 +152,53 @@ export async function generateKeyPairAPI(alias: string, bitLength: number, algo:
           } 
       });
     }
-  
 
-export async function signDocumentAPI(document: string, privateKey: string): Promise<string> {
-    try {
-        // const response = await sendRequest(BACKEND_URL + '/sign-document', { method: 'POST', body: { document, privateKey } });
-        return 'Signed document';
+    export async function generateDSAKeyPairAPI(alias: string ,bitLength : number): Promise<string> {
+      return sendRequest(BACKEND_URL + '/dsa/storeKeyPair', {
+        method: 'POST', 
+        body : { 
+          alias: alias,
+          password : localStorage.getItem('password'),
+          algo: "DSA",
+          keySize : bitLength
+          
+        }
+        });
     }
-    catch (error) {
-        throw new Error('Failed to sign document');
+    
+    export async function loadDSAKeyPairAPI(alias : string , bitLength : number): Promise<string> {
+      return sendRequest(BACKEND_URL + '/dsa/loadKeyPair', {
+        method: 'POST', 
+        body : { 
+          alias : alias,
+          password : localStorage.getItem('password'),
+          algo: "DSA",
+          keySize : bitLength
+          
+        }
+        });
     }
+
+export async function signDocumentAPI(document: string, alias: string): Promise<string> {
+  return sendRequest(BACKEND_URL + '/dsa/sign', { method: 'POST', 
+      body: { 
+        alias : alias,
+        text : document,
+        password : localStorage.getItem('password'),
+        algo : "DSA"
+        } 
+    });
+}
+
+export async function verifyDocumentAPI(document: string, alias: string, signature : string): Promise<boolean> {
+  return sendRequest(BACKEND_URL + '/dsa/verify', { method: 'POST', 
+      body: { 
+        alias : alias,
+        text : document,
+        signature : signature,
+        algo : "DSA"
+        } 
+    });
 }
 
    

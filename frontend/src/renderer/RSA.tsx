@@ -13,6 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 interface KeyPair {
   publicKey: string;
   privateKey: string;
+  alias: string;
 }
 
 export default function RSA() {
@@ -21,12 +22,14 @@ export default function RSA() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [textArea1, settextArea1] = useState<string>('');
   const [textArea2, settextArea2] = useState<string>('');
-  const [selectedKey, setSelectedKey] = useState<KeyPair | null>(null);
-  const [symmetricKeys, setSymmetricKeys] = useState<KeyPair[]>([]);
+  const [selectedKey, setSelectedKey] = useState<KeyPair>();
+  const [keys, setKeys] = useState<KeyPair[]>([]);
+  const [keyAlias, setKeyAlias] = useState<string[]>([]);
   const [hasKeys, setHasKeys] = useState<boolean>(false);
-  const [keyName, setKeyName] = useState<string>('');
   const [isNew, setIsNew] = useState<boolean>(false);
   const [bitLength, setBitLength] = useState<number>(1024);
+  const [keyName, setKeyName] = useState<string>('');
+
   const navigate = useNavigate();
 
   const handleFileUpload = () => {
@@ -34,7 +37,7 @@ export default function RSA() {
     if (file) {
       if (file.size > 1000000) {
         // 1MB limit
-        alert('File is too large!');
+        toast.error('File is too large!');
       } else {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -49,7 +52,7 @@ export default function RSA() {
     const fetchKeys = async () => {
       try {
         const response = await fetchAsymmetricKeys();
-        setSymmetricKeys(response);
+        setKeys(response);
         setSelectedKey(response[0]);
       } catch (error) {
         toast.error('An error occurred while fetching the keys.');
@@ -60,10 +63,10 @@ export default function RSA() {
   }, []);
 
   useEffect(() => {
-    if (symmetricKeys.length > 0) {
+    if (keys.length > 0) {
       setHasKeys(true);
     }
-  }, [symmetricKeys]);
+  }, [keys]);
 
   const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     settextArea1(e.target.value);
@@ -75,13 +78,14 @@ export default function RSA() {
 
   async function generateKeyPair() {
     try {
-      await generateKeyPairAPI(keyName, bitLength, "RSA");
-      const keyString = await loadeKeyPairAPI(keyName, bitLength, "RSA");
+      await generateKeyPairAPI(selectedKey?.alias ?? '', bitLength, "RSA");
+      const keyString = await loadeKeyPairAPI(selectedKey?.alias ?? '', bitLength, "RSA");
       const lines = keyString.split('\n');
       const publicKey = lines[0].split(': ')[1];
       const privateKey = lines[1].split(': ')[1];
-      const newKeyPair = { publicKey, privateKey };
-      setSymmetricKeys((prevKeys) => [...prevKeys, newKeyPair]);
+      const newKeyPair = { publicKey, privateKey, alias : keyName};
+      // setKeyAlias((prevKeys) => [...prevKeys, selectedKey?.alias ?? '']);
+      setKeys((prevKeys) => [...prevKeys, newKeyPair]);
       setSelectedKey(newKeyPair);
       toast.success('Key pair generated successfully!');
     } catch (error) {
@@ -94,12 +98,12 @@ export default function RSA() {
       try {
         const encryptedData = await encryptDataAsymmetric(
           textArea1,
-          selectedKey.publicKey,
+          selectedKey.alias,
         );
         settextArea2(encryptedData);
         toast.success('Data encrypted successfully');
       } catch (error) {
-        toast.error('Failed to encrypt data');
+        toast.error(error as string); // Cast error to string
       }
     } else {
       toast.error('No data to encrypt');
@@ -111,7 +115,7 @@ export default function RSA() {
       try {
         const decryptedData = await decryptDataAsymmetric(
           textArea1,
-          selectedKey.privateKey,
+          selectedKey.alias
         );
         settextArea2(decryptedData);
         toast.success('Data decrypted successfully');
@@ -138,25 +142,13 @@ export default function RSA() {
             <div className="key-selection">
               <p>Selected Key:</p>
               <div className="radio-generate">
-                <select
-                  value={selectedKey?.publicKey}
-                  onChange={(e) => {
-                    const selectedKeyPair = symmetricKeys.find(
-                      (key) => key.publicKey === e.target.value,
-                    );
-                    if (selectedKeyPair) {
-                      setSelectedKey(selectedKeyPair);
-                    }
-                  }}
-                >
-                  {symmetricKeys.map((keyPair, index) => {
-                    return (
-                      <option key={index} value={keyPair.publicKey}>
-                        {keyPair.publicKey}
-                      </option>
-                    );
-                  })}
-                </select>
+              <select onChange={(e) => setSelectedKey(keys.find((key) => key.alias === e.target.value))}>
+                {keys.map((key) => (
+                  <option key={key.alias} value={key.alias}>
+                    {key.alias}
+                  </option>
+                ))}
+            </select>
               </div>
               {!isNew && (
                 <button onClick={() => setIsNew(true)}>Generate New Key</button>
