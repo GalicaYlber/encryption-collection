@@ -20,45 +20,42 @@ import com.encryption.encryption.keystore.KeyStoreUtil;
 import com.encryption.encryption.requests.AssymetricRequest;
 import com.encryption.encryption.requests.SignVerifyRequest;
 
-
 @RestController
 @RequestMapping("/dsa")
 public class DSAController {
 
     private KeyStoreUtil keyStoreUtil;
 
-    public DSAController(KeyStoreUtil keyStoreUtil) {
-        this.keyStoreUtil = keyStoreUtil;
-    }
 
     @PostMapping("/storeKeyPair")
-public ResponseEntity<String> storeKeyPair(@RequestBody AssymetricRequest request) throws KeyStoreException, CertificateException {
-    try {
-        this.keyStoreUtil = new KeyStoreUtil(toAscii(request.getPassword()));
-        KeyPair keypair = this.keyStoreUtil.generateKeyPair(request.getKeySize(),request.getAlgo());
-        this.keyStoreUtil.storeKeyPair(keypair, request.getAlias(), request.getAlgo());
-        return new ResponseEntity<>("Key pair stored!", HttpStatus.OK);
-    } catch (NoSuchAlgorithmException | IOException e) {
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<String> storeKeyPair(@RequestBody AssymetricRequest request)
+            throws KeyStoreException, CertificateException {
+        try {
+            this.keyStoreUtil = new KeyStoreUtil(toAscii(request.getPassword()));
+            KeyPair keypair = this.keyStoreUtil.generateKeyPair(request.getKeySize(), request.getAlgo());
+            this.keyStoreUtil.storeKeyPair(keypair, request.getAlias(), request.getAlgo());
+            return new ResponseEntity<>("Key pair stored!", HttpStatus.OK);
+        } catch (NoSuchAlgorithmException | IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-}
 
-@PostMapping("/loadKeyPair")
-public ResponseEntity<String> loadKeyPair(@RequestBody AssymetricRequest request) {
-    try {
-        this.keyStoreUtil = new KeyStoreUtil(toAscii(request.getPassword()));
-        KeyPair keyPair = keyStoreUtil.loadKeyPair(request.getAlias(), request.getAlgo());
-        String publicKey = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
-        String privateKey = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
-        return new ResponseEntity<>("Public Key: " + publicKey + "\nPrivate Key: " + privateKey, HttpStatus.OK);
-    } catch (IOException e) {
-        return new ResponseEntity<>("Error reading key pair: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    } catch (GeneralSecurityException e) {
-        return new ResponseEntity<>("Security error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    } catch (Exception e) {
-        return new ResponseEntity<>("Unexpected error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    @PostMapping("/loadKeyPair")
+    public ResponseEntity<String> loadKeyPair(@RequestBody AssymetricRequest request) {
+        try {
+            this.keyStoreUtil = new KeyStoreUtil(toAscii(request.getPassword()));
+            KeyPair keyPair = keyStoreUtil.loadKeyPair(request.getAlias(), request.getAlgo());
+            String publicKey = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
+            String privateKey = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
+            return new ResponseEntity<>("Public Key: " + publicKey + "\nPrivate Key: " + privateKey, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Error reading key pair: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (GeneralSecurityException e) {
+            return new ResponseEntity<>("Security error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Unexpected error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-}
 
     @PostMapping("/sign")
     public ResponseEntity<String> sign(@RequestBody SignVerifyRequest request) {
@@ -86,14 +83,13 @@ public ResponseEntity<String> loadKeyPair(@RequestBody AssymetricRequest request
         }
     }
 
-    
-private char[] toAscii(String str) {
-    StringBuilder sb = new StringBuilder();
-    for (char c : str.toCharArray()) {
-        if ((int) c < 128) {
-            sb.append(c);
+    private char[] toAscii(String str) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : str.toCharArray()) {
+            if ((int) c < 128) {
+                sb.append(c);
+            }
         }
+        return sb.toString().toCharArray();
     }
-    return sb.toString().toCharArray();
-}
 }
