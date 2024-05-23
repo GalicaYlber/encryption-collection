@@ -6,6 +6,7 @@ import {
   decryptDataAsymmetric,
   generateKeyPairAPI,
   fetchAsymmetricKeys,
+  loadeKeyPairAPI,
 } from '../main/API';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -25,7 +26,7 @@ export default function RSA() {
   const [hasKeys, setHasKeys] = useState<boolean>(false);
   const [keyName, setKeyName] = useState<string>('');
   const [isNew, setIsNew] = useState<boolean>(false);
-  const [bitLength, setBitLength] = useState<number>(64);
+  const [bitLength, setBitLength] = useState<number>(1024);
   const navigate = useNavigate();
 
   const handleFileUpload = () => {
@@ -74,7 +75,11 @@ export default function RSA() {
 
   async function generateKeyPair() {
     try {
-      const { publicKey, privateKey } = await generateKeyPairAPI();
+      await generateKeyPairAPI(keyName, bitLength, "RSA");
+      const keyString = await loadeKeyPairAPI(keyName, bitLength, "RSA");
+      const lines = keyString.split('\n');
+      const publicKey = lines[0].split(': ')[1];
+      const privateKey = lines[1].split(': ')[1];
       const newKeyPair = { publicKey, privateKey };
       setSymmetricKeys((prevKeys) => [...prevKeys, newKeyPair]);
       setSelectedKey(newKeyPair);
@@ -170,33 +175,33 @@ export default function RSA() {
                         <input
                           type="radio"
                           name="bitlength"
-                          value="64"
-                          checked={bitLength == 64}
-                          onClick={() => setBitLength(64)}
+                          value="1024"
+                          checked={bitLength == 1024}
+                          onClick={() => setBitLength(1024)}
                         />
-                        <>64 bit</>
+                        <>1024 bit</>
                         <br />
                       </label>
                       <label>
                         <input
                           type="radio"
                           name="bitlength"
-                          value="128"
-                          checked={bitLength == 128}
-                          onClick={() => setBitLength(128)}
+                          value="2048"
+                          checked={bitLength == 2048}
+                          onClick={() => setBitLength(2048)}
                         />
-                        <>128 bit</>
+                        <>2048 bit</>
                         <br />
                       </label>
                       <label>
                         <input
                           type="radio"
                           name="bitlength"
-                          value="256"
-                          checked={bitLength == 256}
-                          onClick={() => setBitLength(256)}
+                          value="4096"
+                          checked={bitLength == 4096}
+                          onClick={() => setBitLength(4096)}
                         />
-                        <>256 bit</>
+                        <>4096 bit</>
                         <br />
                       </label>
                     </div>
@@ -212,9 +217,9 @@ export default function RSA() {
           )}
 
           <div className="key-selection">
-            <p>Public Key: {selectedKey?.publicKey}</p>
+            <p>Public Key: {selectedKey?.publicKey.substring(0, 10) + "..."}</p>
 
-            <p>Private Key: {selectedKey?.privateKey}</p>
+            <p>Private Key: {selectedKey?.privateKey.substring(0, 10) + "..."}</p>
           </div>
           <label
             htmlFor="fileUpload"

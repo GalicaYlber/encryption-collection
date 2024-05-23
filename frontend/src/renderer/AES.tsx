@@ -21,6 +21,7 @@ export default function AES() {
   const [textArea1, settextArea1] = useState<string>('');
   const [textArea2, settextArea2] = useState<string>('');
   const [selectedKey, setSelectedKey] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
 
   const handleFileUpload = () => {
     const file = fileInputRef.current?.files?.[0];
@@ -49,6 +50,7 @@ export default function AES() {
   };
 
   useEffect(() => {
+    setPassword(localStorage.getItem('password') as string);
     const fetchKeys = async () => {
       setSymmetricKeys(['key1', 'key2', 'key3']);
       try {
@@ -71,8 +73,8 @@ export default function AES() {
 
   async function generateKey() {
     try {
-      const key = await generateSymmetricKey(keyName);
-      setSymmetricKeys([...symmetricKeys, key]);
+      const key = await generateSymmetricKey(keyName, bitLength, password);
+      setSymmetricKeys([...symmetricKeys, keyName]);
       toast.success('Key generated successfully');
       toast.info('You may find the key at the selected key dropdown');
     } catch (error) {
@@ -83,9 +85,13 @@ export default function AES() {
   async function handleEncrypt() {
     if (textArea1) {
       try {
+        console.log('selectedKey', selectedKey);
+        console.log('password', password);
+        console.log('textArea', textArea1);
         const encryptedData = await encryptDataSymmetric(
           textArea1,
           selectedKey,
+          password
         );
         settextArea2(encryptedData);
         toast.success('Data encrypted successfully');
@@ -103,6 +109,7 @@ export default function AES() {
         const decryptedData = await decryptDataSymmetric(
           textArea1,
           selectedKey,
+          password
         );
         settextArea2(decryptedData);
         toast.success('Data decrypted successfully');
@@ -116,11 +123,11 @@ export default function AES() {
 
   return (
     <div>
-      <button onClick={handleBackClick}>Go Back</button>
+      <button onClick={handleBackClick}>Go Back</button> <i>{"Using password: " + password.substring(0,3 ) + "****"}</i>
       <ToastContainer />
       {props.type === 'aes' && (
         <div className="algorithm">
-          <h1>AES</h1>
+          <h1>AES </h1>
           <div>
             <p>
               AES is a symmetric encryption algorithm. It is used to encrypt and
@@ -130,7 +137,7 @@ export default function AES() {
               <div className="key-selection">
                 <p>Selected Key:</p>
                 <div className="radio-generate">
-                  <select>
+                  <select value={selectedKey} onChange={(e) => setSelectedKey(e.target.value) }>
                     {symmetricKeys.map((key, index) => {
                       return <option key={index}>{key}</option>;
                     })}

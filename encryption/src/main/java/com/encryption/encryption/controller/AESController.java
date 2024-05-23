@@ -2,6 +2,7 @@ package com.encryption.encryption.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.security.cert.CertificateException;
 import javax.crypto.SecretKey;
 
 @RestController
+@CrossOrigin 
 @RequestMapping("/aes")
 
 public class AESController {
@@ -69,6 +71,7 @@ public class AESController {
             String encryptedText = AESUtil.encrypt(keyRequest.getText(), secretKey);
             return new ResponseEntity<>(encryptedText, HttpStatus.OK);
         } catch (Exception e) {
+            System.out.println("pass :" + keyRequest.getPassword() + " " + "key :" + keyRequest.getAlias() + "text :" + keyRequest.getText());
             return new ResponseEntity<>("Encryption error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

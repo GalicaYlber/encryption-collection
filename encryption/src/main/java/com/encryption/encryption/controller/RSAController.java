@@ -10,6 +10,7 @@ import java.util.Base64;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import com.encryption.encryption.requests.AssymetricRequest;
 import com.encryption.encryption.requests.encryptDecryptRequest;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/rsa")
 public class RSAController {
     private KeyStoreUtil keyStoreUtil;
