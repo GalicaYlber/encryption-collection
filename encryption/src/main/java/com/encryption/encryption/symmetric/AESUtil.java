@@ -1,4 +1,4 @@
-package com.encryption.symmetric;
+package com.encryption.encryption.symmetric;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.FileOutputStream;

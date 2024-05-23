@@ -1,5 +1,4 @@
-package com.encryption.keystore;
-
+package com.encryption.encryption.keystore;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
@@ -15,7 +14,9 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Scanner;
+import org.springframework.stereotype.Component;
 
+@Component
 public class KeyStoreUtil {
     private static final String KEYSTORE_TYPE = "JCEKS";
     private static final String KEYSTORE_FILE = "keystore.jks";
@@ -82,7 +83,7 @@ public class KeyStoreUtil {
     public KeyPair loadKeyPair(String alias, String algo) throws IOException, GeneralSecurityException {
         // Load public key from PEM file
         PublicKey publicKey;
-        try (PemReader pemReader = new PemReader(new FileReader(alias + ".pub.pem"))) {
+        try (PemReader pemReader = new PemReader(new FileReader(alias + "_" + algo + ".pub.pem"))) {
             PemObject pemObject = pemReader.readPemObject();
             byte[] publicKeyBytes = pemObject.getContent();
             X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
@@ -92,7 +93,7 @@ public class KeyStoreUtil {
 
         // Load private key from PEM file
         PrivateKey privateKey;
-        try (PemReader pemReader = new PemReader(new FileReader(alias + ".pem"))) {
+        try (PemReader pemReader = new PemReader(new FileReader(alias + "_" + algo + ".pem"))) {
             PemObject pemObject = pemReader.readPemObject();
             byte[] privateKeyBytes = pemObject.getContent();
             PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
