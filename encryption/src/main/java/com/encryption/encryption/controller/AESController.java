@@ -14,10 +14,12 @@ import com.encryption.encryption.symmetric.AESUtil;
 import java.security.KeyStoreException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import javax.crypto.SecretKey;
 import java.util.ArrayList;
+import java.util.Set;
 
 @RestController
 @CrossOrigin 
@@ -30,7 +32,6 @@ public class AESController {
 
     @PostMapping("/setKeystorePassword")
     public String setKeystorePassword(@RequestBody String password) {
-        System.out.println("Password: " + password);
         try {
             this.keyStoreUtil = new KeyStoreUtil(toAscii(password));
             return "Password set successfully!";
@@ -51,12 +52,20 @@ public class AESController {
 
     @PostMapping("/generateAndStoreKey")
     public String generateAndStoreKey(@RequestBody SecretKeyRequest keyRequest) {
-        if (this.keyStoreUtil == null) {
-            return "Failed to generate and store key: KeyStoreUtil has not been initialized. Please set the keystore password first.";
-        }
+        // if (this.keyStoreUtil == null) {
+        //     return "Failed to generate and store key: KeyStoreUtil has not been initialized. Please set the keystore password first.";
+        // }
         try {
-            SecretKey secretKey = AESUtil.generateKey(keyRequest.getKeySize(), keyRequest.getRandomness());
+			Set<String> secureRandomAlgorithms = Security.getAlgorithms("SecureRandom");
+
+			// Print the available SecureRandom algorithms
+			System.out.println("Available SecureRandom algorithms:");
+			for (String algorithm : secureRandomAlgorithms) {
+				System.out.println(algorithm);
+			}
+			
             this.keyStoreUtil = new KeyStoreUtil(toAscii(keyRequest.getPassword()));
+            SecretKey secretKey = AESUtil.generateKey(keyRequest.getKeySize(), keyRequest.getRandomness());
             this.keyStoreUtil.storeSecretKey(secretKey, keyRequest.getAlias());
             return "Key generated and stored in keystore. Key (Hex): " + bytesToHex(secretKey.getEncoded());
         } catch (Exception e) {
