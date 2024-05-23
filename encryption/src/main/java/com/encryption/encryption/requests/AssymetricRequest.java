@@ -5,6 +5,7 @@ public class AssymetricRequest {
     private String alias;
     private String password;
     private String algo;
+	private String randomness;
 
     public int getKeySize() {
         return keySize;
@@ -37,4 +38,12 @@ public class AssymetricRequest {
     public void setAlgo(String algo) {
         this.algo = algo;
     }
+
+	public String getRandomness() {
+		return randomness;
+	}
+
+	public void setRandomness(String randomness) {
+		this.randomness = randomness;
+	}
 }

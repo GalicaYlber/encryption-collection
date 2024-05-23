@@ -15,6 +15,8 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Scanner;
 import org.springframework.stereotype.Component;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
 @Component
 public class KeyStoreUtil {
@@ -58,11 +60,20 @@ public class KeyStoreUtil {
         return (SecretKey) keyStore.getKey(alias, keystorePassword);
     }
 
-    public KeyPair generateKeyPair(int keySize, String algo) throws NoSuchAlgorithmException {
+	public ArrayList<String> getAllAliases() throws KeyStoreException {
+		ArrayList<String> aliases = new ArrayList<>();
+		Enumeration<String> aliasEnum = keyStore.aliases();
+		while (aliasEnum.hasMoreElements()) {
+			aliases.add(aliasEnum.nextElement());
+		}
+		return aliases;
+	}
+
+    public KeyPair generateKeyPair(int keySize, String algo, String sourceOfRandomness) throws NoSuchAlgorithmException {
         System.out.println("Algorithm: " + algo);
 
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algo);
-        keyPairGenerator.initialize(keySize);
+        keyPairGenerator.initialize(keySize, SecureRandom.getInstance(sourceOfRandomness));
         return keyPairGenerator.generateKeyPair();
     }
 
@@ -132,6 +143,14 @@ public class KeyStoreUtil {
         return scanner.nextLine().toCharArray();
     }
 }
+
+	// lene qet sen per profen
+
+	// The following code is not used in the application, but is provided here anyway.
+	// We commented the code out because the assignment noted to save the keypairs for DSA and RSA in PEM format.
+	// However we keep it here to show that we did figure out how to store them in the keystore.
+	// It demonstrates how to generate a self-signed certificate and store the keys and keypairs in a keystore.
+	// It also demonstrates how to load the keys and keypairs from the keystore.
 
 	// public void storeKeyPair(KeyPair keyPair, String alias) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
     //     try {

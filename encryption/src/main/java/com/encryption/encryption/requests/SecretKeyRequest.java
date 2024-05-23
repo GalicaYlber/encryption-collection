@@ -4,6 +4,7 @@ public class SecretKeyRequest {
     private int keySize;
     private String alias;
     private String password;
+	private String randomness;
 
     public String getPassword() {
         return password;
@@ -29,5 +30,11 @@ public class SecretKeyRequest {
         this.alias = alias;
     }
 
-    // getters and setters...
+	public String getRandomness() {
+		return randomness;
+	}
+
+	public void setRandomness(String randomness) {
+		this.randomness = randomness;
+	}
 }

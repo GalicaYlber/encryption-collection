@@ -6,6 +6,7 @@ import java.security.KeyPair;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Base64;
 
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,7 @@ public class RSAController {
             throws KeyStoreException, CertificateException {
         try {
             this.keyStoreUtil = new KeyStoreUtil(toAscii(request.getPassword()));
-            KeyPair keypair = this.keyStoreUtil.generateKeyPair(request.getKeySize(), request.getAlgo());
+            KeyPair keypair = this.keyStoreUtil.generateKeyPair(request.getKeySize(), request.getAlgo(), request.getRandomness());
             this.keyStoreUtil.storeKeyPair(keypair, request.getAlias(), request.getAlgo());
             return new ResponseEntity<>("Key pair stored!", HttpStatus.OK);
         } catch (NoSuchAlgorithmException | IOException e) {
@@ -92,15 +93,16 @@ public class RSAController {
         }
     }
 
-    @GetMapping("/getAllKeys")
-    public ResponseEntity<String> getAllKeys() {
-        try {
-            this.keyStoreUtil = new KeyStoreUtil(toAscii("password"));
-            // String keys = keyStoreUtil.getAllKeys();
-            // return new ResponseEntity<>(keys, HttpStatus.OK);
-            return new ResponseEntity<>("", HttpStatus.OK);
-        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-            return new ResponseEntity<>("Error reading key pair: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+	@PostMapping("/getAllAliases")
+	public ResponseEntity<ArrayList<String>> getAllAliases(@RequestBody AssymetricRequest request) {
+		try {
+			this.keyStoreUtil = new KeyStoreUtil(toAscii(request.getPassword()));
+			ArrayList<String> aliases = RSAUtil.getAllAliases();
+			return new ResponseEntity<>(aliases, HttpStatus.OK);
+		} catch (Exception e) {
+			ArrayList<String> errorList = new ArrayList<>();
+			errorList.add("Error getting aliases: " + e.getMessage());
+			return new ResponseEntity<>(errorList, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

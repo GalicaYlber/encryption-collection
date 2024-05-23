@@ -18,6 +18,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import javax.crypto.SecretKey;
+import java.util.ArrayList;
 
 @RestController
 @CrossOrigin 
@@ -26,7 +27,7 @@ import javax.crypto.SecretKey;
 public class AESController {
 
     private KeyStoreUtil keyStoreUtil;
-    private AESUtil AESUtil;
+    // private AESUtil AESUtil;
 
     @PostMapping("/setKeystorePassword")
     public String setKeystorePassword(@RequestBody String password) {
@@ -55,7 +56,7 @@ public class AESController {
             return "Failed to generate and store key: KeyStoreUtil has not been initialized. Please set the keystore password first.";
         }
         try {
-            SecretKey secretKey = AESUtil.generateKey(keyRequest.getKeySize());
+            SecretKey secretKey = AESUtil.generateKey(keyRequest.getKeySize(), keyRequest.getRandomness());
             this.keyStoreUtil = new KeyStoreUtil(toAscii(keyRequest.getPassword()));
             this.keyStoreUtil.storeSecretKey(secretKey, keyRequest.getAlias());
             return "Key generated and stored in keystore. Key (Hex): " + bytesToHex(secretKey.getEncoded());
@@ -109,15 +110,15 @@ public class AESController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @GetMapping("/getAllKeys")
-    public ResponseEntity<String> getAllKeys() {
-        try {
-            this.keyStoreUtil = new KeyStoreUtil(toAscii("password"));
-            // String keys = keyStoreUtil.getAllKeys();
-            // return new ResponseEntity<>(keys, HttpStatus.OK);
-            return new ResponseEntity<>("", HttpStatus.OK);
-        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-            return new ResponseEntity<>("Error reading key pair: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+
+	@PostMapping("/getAllAliases")
+	public ResponseEntity<ArrayList<String>> getAllAliases(@RequestBody String password) {
+		try {
+			this.keyStoreUtil = new KeyStoreUtil(toAscii(password));
+			ArrayList<String> aliases = keyStoreUtil.getAllAliases();
+			return new ResponseEntity<>(aliases, HttpStatus.OK);
+		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

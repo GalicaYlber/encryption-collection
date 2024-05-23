@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
@@ -14,9 +15,9 @@ import javax.crypto.Cipher;
 public class RSAUtil {
     private static final String ALGORITHM = "RSA";
 
-    public static KeyPair generateKeyPair(int keySize) throws NoSuchAlgorithmException {
+    public static KeyPair generateKeyPair(int keySize, String sourceOfRandomness) throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM);
-        keyPairGenerator.initialize(keySize);
+        keyPairGenerator.initialize(keySize, SecureRandom.getInstance(sourceOfRandomness));
         return keyPairGenerator.generateKeyPair();
     }
 
@@ -30,6 +31,24 @@ public class RSAUtil {
             privateKeyFos.write(privateKeyBytes);
         }
     }
+
+	public static ArrayList<String> getAllAliases() throws IOException {
+		ArrayList<String> aliases = new ArrayList<String>();
+		Files.walk(Paths.get("")).forEach(filePath -> {
+			System.out.println(filePath.toString());
+			if (Files.isRegularFile(filePath)) {
+				String path = filePath.toString();
+				if (path.endsWith("_RSA.pub.pem")) {
+					aliases.add(path.split("_")[0]);
+				}
+				if (path.endsWith("_RSA.pem")) {
+					aliases.add(path.split("_")[0]);
+				}
+			}
+		});
+
+		return aliases;
+	}
 
     public static KeyPair loadKeyPair(String publicKeyPath, String privateKeyPath) throws IOException, GeneralSecurityException {
         byte[] publicKeyBytes = Files.readAllBytes(Paths.get(publicKeyPath));
