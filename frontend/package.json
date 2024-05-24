@@ -183,7 +183,11 @@
     "files": [
       "dist",
       "node_modules",
-      "package.json"
+      "package.json",
+      "../encryption/target/encryption-0.0.1-SNAPSHOT.jar"
+    ],
+    "extraResources": [
+      "./assets/**"
     ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
@@ -230,9 +234,6 @@
       "buildResources": "assets",
       "output": "release/build"
     },
-    "extraResources": [
-      "./assets/**"
-    ],
     "publish": {
       "provider": "github",
       "owner": "electron-react-boilerplate",

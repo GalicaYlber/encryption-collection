@@ -14,6 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { exec } from 'child_process';
 
 class AppUpdater {
   constructor() {
@@ -84,6 +85,9 @@ const createWindow = async () => {
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
+    console.log('ready-to-show');
+    exec( "java -jar" + __dirname + "../encryption/target/encryption-0.0.1-SNAPSHOT.jar");
+
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }

@@ -46,10 +46,16 @@ export default function Home() {
         else
             setIsAuthenticated(false);
     }
+
+    function handleLogout() {
+        setIsAuthenticated(false);
+        localStorage.removeItem('password');
+    }
     
     return (
 
             <div className="container home">
+                <button onClick={() => handleLogout()}>Logout</button>
                 {isAuthenticated ? 
                 (
                     <>
