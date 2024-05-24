@@ -12,6 +12,7 @@ import {
   fetchDSAKeys,
 } from '../main/API';
 import 'react-toastify/dist/ReactToastify.css';
+import { downloadTxtFile } from './Downloader';
 
 interface Key {
   publicKey: string;
@@ -20,6 +21,7 @@ interface Key {
 }
 
 export default function DSA() {
+  const textAreaRef = useRef(null);
   const location = useLocation();
   const { props } = location.state;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -148,7 +150,7 @@ export default function DSA() {
 
         console.log(decryptedData);
 
-        setOutlineColor(decryptedData ? '4px solid green' : '4px solid red');
+        setOutlineColor(decryptedData ? '4px solid #00FF00' : '4px solid red');
         settextArea2(
           decryptedData ? 'Document is verified' : 'Document is not verified',
         );
@@ -201,7 +203,7 @@ export default function DSA() {
       <div className="algorithm">
         <h1>DSA</h1>
         <div>
-          <p>Dsa uses</p>
+          <p>DSA is a widely-used asymmetric encryption algorithm primarily used for digital signatures</p>
 
           {keys.length > 0 ? (
             <div className="key-selection">
@@ -466,8 +468,9 @@ export default function DSA() {
                 id="fileUploadSignature"
                 value={textArea2}
                 style={{ border: outlineColor }}
-                placeholder="Encrypted text here"
+                placeholder="The signature appears here"
               ></textarea>
+              <button onClick={() => downloadTxtFile(textArea2)}>Download</button>
             </div>
           </div>
         </div>

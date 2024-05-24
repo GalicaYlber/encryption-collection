@@ -8,8 +8,10 @@ import {
   decryptDataSymmetric,
 } from '../main/API';
 import 'react-toastify/dist/ReactToastify.css';
+import { downloadTxtFile } from './Downloader';
 
 export default function AES() {
+  const textAreaRef = useRef(null);
   const location = useLocation();
   const { props } = location.state;
   const [symmetricKeys, setSymmetricKeys] = useState<string[]>([]);
@@ -22,6 +24,7 @@ export default function AES() {
   const [textArea2, settextArea2] = useState<string>('');
   const [selectedKey, setSelectedKey] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [outlineColor, setOutlineColor] = useState('');
   const [randomness, setRandomness] = useState<string>('DEFAULT');
 
   const handleFileUpload = () => {
@@ -29,7 +32,7 @@ export default function AES() {
     if (file) {
       if (file.size > 1000000) {
         // 1MB limit
-        alert('File is too large!');
+        // alert('File is too large!');
       } else {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -52,7 +55,7 @@ export default function AES() {
 
   useEffect(() => {
     setPassword(localStorage.getItem('password') as string);
- 
+
       fetchSymmetricKeys().then((response) => {
         setSymmetricKeys(response);
         setSelectedKey(response[0]);
@@ -91,9 +94,11 @@ export default function AES() {
           password
         );
         settextArea2(encryptedData);
+        setOutlineColor('');
         toast.success('Data encrypted successfully');
       } catch (error) {
         toast.error('Failed to encrypt data');
+        setOutlineColor('');
       }
     } else {
       toast.error('No data to encrypt');
@@ -109,9 +114,11 @@ export default function AES() {
           password
         );
         settextArea2(decryptedData);
+        setOutlineColor('4px solid #00FF00');
         toast.success('Data decrypted successfully');
       } catch (error) {
         toast.error('Failed to decrypt data');
+        setOutlineColor('4px solid red');
       }
     } else {
       toast.error('No data to decrypt');
@@ -120,7 +127,7 @@ export default function AES() {
 
   return (
     <div>
-      <button onClick={handleBackClick}>Go Back</button> <i>{"Using password: " + password.substring(0,3 ) + "****"}</i>
+      <button onClick={handleBackClick}>Go Back</button>
       <ToastContainer />
       {props.type === 'aes' && (
         <div className="algorithm">
@@ -340,7 +347,10 @@ export default function AES() {
                 <button onClick={handleEncrypt}>Encrypt</button>
                 <button onClick={handleDecrypt}>Decrypt</button>
               </div>
-              <textarea value={textArea2}></textarea>
+              <>
+      <textarea ref={textAreaRef} style={{ border: outlineColor }} value={textArea2}></textarea>
+      <button onClick={() => downloadTxtFile(textArea2)}>Download</button>
+    </>
             </div>
           </div>
         </div>

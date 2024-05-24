@@ -9,7 +9,7 @@ import {
   loadKeyPairAPI,
 } from '../main/API';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { downloadTxtFile } from './Downloader';
 interface KeyPair {
   publicKey: string;
   privateKey: string;
@@ -17,6 +17,7 @@ interface KeyPair {
 }
 
 export default function RSA() {
+  const textAreaRef = useRef(null);
   const location = useLocation();
   const { props } = location.state;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -24,7 +25,7 @@ export default function RSA() {
   const [textArea2, settextArea2] = useState<string>('');
   const [selectedKey, setSelectedKey] = useState<KeyPair>();
   const [keys, setKeys] = useState<string[]>([]);
-
+  const [outlineColor, setOutlineColor] = useState('');
   const [hasKeys, setHasKeys] = useState<boolean>(false);
   const [isNew, setIsNew] = useState<boolean>(false);
   const [bitLength, setBitLength] = useState<number>(512);
@@ -117,9 +118,11 @@ export default function RSA() {
           selectedKey.alias,
         );
         settextArea2(encryptedData);
+        setOutlineColor('');
         toast.success('Data encrypted successfully');
       } catch (error) {
         toast.error(error as string); // Cast error to string
+        setOutlineColor('');
       }
     } else {
       toast.error('No data to encrypt');
@@ -134,9 +137,11 @@ export default function RSA() {
           selectedKey.alias,
         );
         settextArea2(decryptedData);
+        setOutlineColor('4px solid #00FF00');
         toast.success('Data decrypted successfully');
       } catch (error) {
         toast.error('Failed to decrypt data');
+        setOutlineColor('4px solid red');
       }
     } else {
       toast.error('No data to decrypt');
@@ -157,11 +162,10 @@ export default function RSA() {
       <button onClick={handleBackClick}>Go Back</button>
       <ToastContainer />
       <div className="algorithm">
-        <h1>Asymmetric Encryption</h1>
+        <h1>RSA</h1>
         <div>
           <p>
-            Asymmetric encryption uses a pair of public and private keys for
-            encryption and decryption.
+          RSA is a popular asymmetric encryption algorithm widely used for secure communication and digital signatures.
           </p>
           {hasKeys ? (
             <div className="key-selection">
@@ -394,7 +398,8 @@ export default function RSA() {
               <button onClick={handleEncrypt}>Encrypt</button>
               <button onClick={handleDecrypt}>Decrypt</button>
             </div>
-            <textarea value={textArea2}></textarea>
+            <textarea style={{ border: outlineColor }} value={textArea2}></textarea>
+            <button onClick={() => downloadTxtFile(textArea2)}>Download</button>
           </div>
         </div>
       </div>
