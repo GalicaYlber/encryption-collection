@@ -17,7 +17,7 @@ export default function AES() {
   const [symmetricKeys, setSymmetricKeys] = useState<string[]>([]);
   const [hasKeys, setHasKeys] = useState<boolean>(false);
   const [keyName, setKeyName] = useState<string>('');
-  const [bitLength, setBitLength] = useState<number>(64);
+  const [bitLength, setBitLength] = useState<number>(128);
   const [isNew, setIsNew] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [textArea1, settextArea1] = useState<string>('');
@@ -169,11 +169,11 @@ export default function AES() {
                           <input
                             type="radio"
                             name="bitlength"
-                            value="64"
-                            checked={bitLength == 64}
-                            onClick={() => setBitLength(64)}
+                            value="128"
+                            checked={bitLength == 128}
+                            onClick={() => setBitLength(128)}
                           />
-                          <>64 bit</>
+                          <>128 bit</>
                           <br />
                         </label>
                         <label>
@@ -256,11 +256,11 @@ export default function AES() {
                         <input
                           type="radio"
                           name="bitlength"
-                          value="64"
-                          checked={bitLength == 64}
-                          onClick={() => setBitLength(64)}
+                          value="128"
+                          checked={bitLength == 128}
+                          onClick={() => setBitLength(128)}
                         />
-                        <>64 bit</>
+                        <>128 bit</>
                         <br />
                       </label>
                       <label>
