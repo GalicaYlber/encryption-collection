@@ -131,12 +131,15 @@ export default function AES() {
       <ToastContainer />
       {props.type === 'aes' && (
         <div className="algorithm">
-          <h1>AES </h1>
-          <div>
+            <div className='title'>
+            <h1>AES </h1>
             <p>
-              AES is a symmetric encryption algorithm. It is used to encrypt and
-              decrypt data.
-            </p>
+                AES is a symmetric encryption algorithm. It is used to encrypt and
+                decrypt data.
+              </p>
+            </div>
+          <div>
+
             {hasKeys ? (
               <div className="key-selection">
                 <p>Selected Key:</p>
@@ -323,34 +326,38 @@ export default function AES() {
                 </div>
               </>
             )}
-            <label
-              htmlFor="fileUpload"
-              className="file_upload"
-              style={{ cursor: 'pointer' }}
-            >
-              Upload File
-            </label>
-            <input
-              type="file"
-              id="fileUpload"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              style={{ display: 'none' }}
-            />
+
             <div className="encryption-area">
-              <textarea
-                value={textArea1}
-                onChange={handleTextAreaChange}
-              ></textarea>
+              <div className='decrypt-area'>
+                <label
+                htmlFor="fileUpload"
+                className="file_upload"
+                style={{ cursor: 'pointer' }}
+              >
+                Upload File
+              </label>
+              <input
+                type="file"
+                id="fileUpload"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                style={{ display: 'none' }}
+              />
+                <textarea
+                  value={textArea1}
+                  onChange={handleTextAreaChange}
+                  placeholder='Enter text to encrypt/decrypt'
+                ></textarea>
+              </div>
 
               <div className="encryot-decrypt-buttons">
                 <button onClick={handleEncrypt}>Encrypt</button>
                 <button onClick={handleDecrypt}>Decrypt</button>
               </div>
-              <>
-      <textarea ref={textAreaRef} style={{ border: outlineColor }} value={textArea2}></textarea>
-      <button onClick={() => downloadTxtFile(textArea2)}>Download</button>
-    </>
+              <div className='decrypt-area'>
+                <button onClick={() => downloadTxtFile(textArea2)}>Download</button>
+                <textarea ref={textAreaRef} style={{ border: outlineColor }} value={textArea2} placeholder='Resulting text here'></textarea>
+              </div>
             </div>
           </div>
         </div>

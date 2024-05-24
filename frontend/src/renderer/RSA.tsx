@@ -10,6 +10,7 @@ import {
 } from '../main/API';
 import 'react-toastify/dist/ReactToastify.css';
 import { downloadTxtFile } from './Downloader';
+
 interface KeyPair {
   publicKey: string;
   privateKey: string;
@@ -162,11 +163,14 @@ export default function RSA() {
       <button onClick={handleBackClick}>Go Back</button>
       <ToastContainer />
       <div className="algorithm">
-        <h1>RSA</h1>
-        <div>
+        <div className='title'>
+          <h1>RSA</h1>
           <p>
-          RSA is a popular asymmetric encryption algorithm widely used for secure communication and digital signatures.
+            RSA is a popular asymmetric encryption algorithm widely used for secure communication and digital signatures.
           </p>
+        </div>
+        <div>
+          
           {hasKeys ? (
             <div className="key-selection">
               <p>Selected Key:</p>
@@ -375,31 +379,39 @@ export default function RSA() {
               Private Key: {selectedKey?.privateKey.substring(0, 10) + '...'}
             </p>
           </div>
-          <label
-            htmlFor="fileUpload"
-            className="file_upload"
-            style={{ cursor: 'pointer' }}
-          >
-            Upload File
-          </label>
-          <input
-            type="file"
-            id="fileUpload"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-            style={{ display: 'none' }}
-          />
+
+          
           <div className="encryption-area">
-            <textarea
-              value={textArea1}
-              onChange={handleTextAreaChange}
-            ></textarea>
+            <div className='decrypt-area'>
+              <label
+                htmlFor="fileUpload"
+                className="file_upload"
+                style={{ cursor: 'pointer' }}
+              >
+                Upload File
+              </label>
+              <input
+                type="file"
+                id="fileUpload"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                style={{ display: 'none' }}
+              />
+              <textarea
+                value={textArea1}
+                onChange={handleTextAreaChange}
+                placeholder='Enter text to encrypt/decrypt here'
+              ></textarea>
+            </div>
             <div className="encryot-decrypt-buttons">
               <button onClick={handleEncrypt}>Encrypt</button>
               <button onClick={handleDecrypt}>Decrypt</button>
             </div>
-            <textarea style={{ border: outlineColor }} value={textArea2}></textarea>
-            <button onClick={() => downloadTxtFile(textArea2)}>Download</button>
+            <div className='decrypt-area'>
+
+              <button onClick={() => downloadTxtFile(textArea2)}>Download</button>
+              <textarea style={{ border: outlineColor }} value={textArea2} placeholder='Resulting text here'></textarea>
+            </div>
           </div>
         </div>
       </div>

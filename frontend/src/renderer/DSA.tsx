@@ -201,10 +201,14 @@ export default function DSA() {
       <button onClick={handleBackClick}>Go Back</button>
       <ToastContainer />
       <div className="algorithm">
-        <h1>DSA</h1>
+        <div className="title">
+          <h1>DSA</h1>
+          <p>
+            DSA is a widely-used asymmetric encryption algorithm primarily used
+            for digital signatures
+          </p>
+        </div>
         <div>
-          <p>DSA is a widely-used asymmetric encryption algorithm primarily used for digital signatures</p>
-
           {keys.length > 0 ? (
             <div className="key-selection">
               <select
@@ -470,7 +474,9 @@ export default function DSA() {
                 style={{ border: outlineColor }}
                 placeholder="The signature appears here"
               ></textarea>
-              <button onClick={() => downloadTxtFile(textArea2)}>Download</button>
+              <button onClick={() => downloadTxtFile(textArea2)}>
+                Download
+              </button>
             </div>
           </div>
         </div>

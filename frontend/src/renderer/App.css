@@ -60,6 +60,15 @@ a:hover {
  
 }
 
+.decrypt-area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column-reverse;
+
+}
+
 .algorithm, .algorithm select, .algorithm input, .algorithm textarea {
   padding: 10px;
   border-radius: 10px;
@@ -148,4 +157,29 @@ a:hover {
   height: 150px;
   width: 350px;
   margin-top: 2rem;
+}
+
+.encryot-decrypt-buttons :nth-child(1) {
+  /* background-color: orange; */
+}
+
+.encryot-decrypt-buttons :nth-child(1):hover {
+  background-color: orange;
+  transform: scale(1.05);
+  rotate: 365deg;
+}
+
+.encryot-decrypt-buttons :nth-child(2):hover {
+  background-color: blue;
+  transform: scale(1.05);
+  rotate: 365deg;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 80%;
+  margin: auto;
+  text-align: center;
 }
